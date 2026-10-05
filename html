@@ -1,0 +1,1620 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lee Media Player</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg: #101010;
+    --panel: #181818;
+    --panel2: #202020;
+    --orange: #ff8800;
+    --orange2: #ffad32;
+    --text: #eeeeee;
+    --muted: #999;
+    --border: #303030;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* APP */
+.app {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    background: #151515;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.logo {
+    height: 75px;
+    display: flex;
+    align-items: center;
+    padding: 0 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.logo-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #ff8c00;
+    position: relative;
+    margin-right: 12px;
+}
+
+.logo-icon::before,
+.logo-icon::after {
+    content: "";
+    position: absolute;
+    left: 5px;
+    right: 5px;
+    height: 7px;
+    background: white;
+    border-radius: 50%;
+}
+
+.logo-icon::before {
+    top: 9px;
+    box-shadow: 0 9px 0 white, 0 18px 0 white;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.logo-text span {
+    color: var(--orange);
+}
+
+.menu {
+    padding: 20px 12px;
+}
+
+.menu-title {
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin: 0 12px 10px;
+    letter-spacing: 1px;
+}
+
+.menu button {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #bbb;
+    text-align: left;
+    padding: 13px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.menu button:hover,
+.menu button.active {
+    background: #292929;
+    color: white;
+}
+
+.menu button.active {
+    border-left: 3px solid var(--orange);
+}
+
+.menu button span {
+    display: inline-block;
+    width: 25px;
+    font-size: 17px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding: 18px;
+    border-top: 1px solid var(--border);
+    color: #777;
+    font-size: 12px;
+}
+
+/* MAIN */
+.main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* TOP BAR */
+.topbar {
+    height: 65px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 15px;
+}
+
+.search {
+    flex: 1;
+    max-width: 500px;
+    position: relative;
+}
+
+.search input {
+    width: 100%;
+    background: #101010;
+    border: 1px solid #333;
+    color: white;
+    padding: 11px 15px 11px 40px;
+    border-radius: 25px;
+    outline: none;
+}
+
+.search input:focus {
+    border-color: var(--orange);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 10px;
+    color: #777;
+}
+
+.top-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.top-btn {
+    border: none;
+    background: #292929;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.top-btn:hover {
+    background: #383838;
+}
+
+/* CONTENT */
+.content {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+/* PLAYER AREA */
+.player-section {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* VIDEO */
+.video-container {
+    flex: 1;
+    background: #050505;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: black;
+}
+
+.empty-screen {
+    position: absolute;
+    text-align: center;
+    color: #555;
+    pointer-events: none;
+}
+
+.empty-logo {
+    width: 95px;
+    height: 95px;
+    border-radius: 50%;
+    background: #ff8800;
+    margin: auto auto 20px;
+    position: relative;
+    opacity: .85;
+}
+
+.empty-logo::before {
+    content: "";
+    position: absolute;
+    left: 13px;
+    right: 13px;
+    top: 22px;
+    height: 10px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 15px 0 white, 0 30px 0 white;
+}
+
+.empty-screen h2 {
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.empty-screen p {
+    font-size: 13px;
+}
+
+/* CONTROLS */
+.controls {
+    background: #181818;
+    border-top: 1px solid #292929;
+    padding: 10px 15px 12px;
+}
+
+.progress-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: #aaa;
+}
+
+.progress {
+    flex: 1;
+    appearance: none;
+    height: 4px;
+    background: #444;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.progress::-webkit-slider-thumb {
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--orange);
+}
+
+.progress::-moz-range-thumb {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--orange);
+    border: none;
+}
+
+.control-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+}
+
+.left-controls,
+.center-controls,
+.right-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.control-btn {
+    border: none;
+    background: transparent;
+    color: #ddd;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.control-btn:hover {
+    background: #303030;
+    color: white;
+}
+
+.play-btn {
+    background: var(--orange);
+    color: #111;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+}
+
+.play-btn:hover {
+    background: var(--orange2);
+    color: #111;
+}
+
+.volume {
+    width: 90px;
+    appearance: none;
+    height: 4px;
+    background: #444;
+    border-radius: 4px;
+}
+
+.volume::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--orange);
+}
+
+.speed-select {
+    background: #282828;
+    color: white;
+    border: 1px solid #3b3b3b;
+    padding: 7px;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* PLAYLIST */
+.playlist {
+    width: 330px;
+    background: #151515;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.playlist-header {
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.playlist-header h3 {
+    font-size: 15px;
+}
+
+.playlist-count {
+    color: #777;
+    font-size: 12px;
+}
+
+.playlist-tools {
+    padding: 10px;
+    display: flex;
+    gap: 7px;
+    border-bottom: 1px solid var(--border);
+}
+
+.playlist-tools button {
+    flex: 1;
+    border: 1px solid #333;
+    background: #242424;
+    color: #ccc;
+    padding: 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.playlist-tools button:hover {
+    background: #333;
+    color: white;
+}
+
+.playlist-items {
+    overflow-y: auto;
+    flex: 1;
+}
+
+.playlist-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    gap: 10px;
+    border-bottom: 1px solid #222;
+    cursor: pointer;
+}
+
+.playlist-item:hover {
+    background: #222;
+}
+
+.playlist-item.active {
+    background: #292929;
+    border-left: 3px solid var(--orange);
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    background: #242424;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    color: var(--orange);
+    font-size: 18px;
+}
+
+.item-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.item-name {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-type {
+    color: #777;
+    font-size: 10px;
+    margin-top: 4px;
+}
+
+.remove-item {
+    color: #666;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+}
+
+.remove-item:hover {
+    color: #ff5555;
+}
+
+/* DRAG DROP */
+.drop-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 136, 0, .12);
+    border: 3px dashed var(--orange);
+    z-index: 20;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.drop-overlay.show {
+    display: flex;
+}
+
+.drop-message {
+    background: #181818;
+    padding: 25px 40px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.drop-message div {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+/* TOAST */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translate(-50%, 100px);
+    background: #292929;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: .3s;
+    z-index: 100;
+    box-shadow: 0 5px 25px rgba(0,0,0,.5);
+}
+
+.toast.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+}
+
+/* MOBILE */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 70px;
+    }
+
+    .logo {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .logo-text,
+    .menu-title,
+    .menu button span:last-child,
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .logo-icon {
+        margin: 0;
+    }
+
+    .menu button {
+        text-align: center;
+        padding: 14px 5px;
+    }
+
+    .menu button span {
+        width: auto;
+    }
+
+    .playlist {
+        width: 260px;
+    }
+}
+
+@media (max-width: 650px) {
+    .playlist {
+        display: none;
+    }
+
+    .sidebar {
+        width: 60px;
+    }
+
+    .topbar {
+        padding: 0 10px;
+    }
+
+    .search {
+        max-width: none;
+    }
+
+    .right-controls .speed-select {
+        display: none;
+    }
+
+    .volume {
+        width: 60px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">VLC <span>Player</span></div>
+        </div>
+
+        <div class="menu">
+
+            <div class="menu-title">Library</div>
+
+            <button class="active" onclick="showToast('Media Library')">
+                <span>🏠</span>
+                <span>Home</span>
+            </button>
+
+            <button onclick="openFiles()">
+                <span>📂</span>
+                <span>Open Media</span>
+            </button>
+
+            <button onclick="showToast('Your video library')">
+                <span>🎬</span>
+                <span>Videos</span>
+            </button>
+
+            <button onclick="showToast('Your music library')">
+                <span>🎵</span>
+                <span>Music</span>
+            </button>
+
+            <button onclick="showToast('Recently played media')">
+                <span>🕘</span>
+                <span>History</span>
+            </button>
+
+        </div>
+
+        <div class="sidebar-bottom">
+            Browser Media Player<br>
+            Version 1.0
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <div class="search">
+                <span class="search-icon">🔍</span>
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search playlist..."
+                    oninput="searchPlaylist()"
+                >
+            </div>
+
+            <div class="top-actions">
+                <button class="top-btn" onclick="openFiles()" title="Open Media">
+                    📂
+                </button>
+
+                <button class="top-btn" onclick="toggleFullscreen()" title="Fullscreen">
+                    ⛶
+                </button>
+            </div>
+
+        </header>
+
+
+        <!-- CONTENT -->
+        <div class="content">
+
+            <!-- PLAYER -->
+            <section class="player-section">
+
+                <div
+                    class="video-container"
+                    id="videoContainer"
+                >
+
+                    <video
+                        id="video"
+                        preload="metadata"
+                    ></video>
+
+                    <div class="empty-screen" id="emptyScreen">
+
+                        <div class="empty-logo"></div>
+
+                        <h2>No Media Playing</h2>
+
+                        <p>
+                            Open a video or audio file to start playback
+                        </p>
+
+                    </div>
+
+                    <div class="drop-overlay" id="dropOverlay">
+                        <div class="drop-message">
+                            <div>📁</div>
+                            <strong>Drop media files here</strong>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <!-- CONTROLS -->
+                <div class="controls">
+
+                    <div class="progress-area">
+
+                        <span id="currentTime">00:00</span>
+
+                        <input
+                            class="progress"
+                            id="progress"
+                            type="range"
+                            min="0"
+                            max="100"
+                            value="0"
+                        >
+
+                        <span id="duration">00:00</span>
+
+                    </div>
+
+
+                    <div class="control-row">
+
+                        <div class="left-controls">
+
+                            <button
+                                class="control-btn"
+                                onclick="previousMedia()"
+                                title="Previous"
+                            >
+                                ⏮
+                            </button>
+
+                            <button
+                                class="control-btn"
+                                onclick="skipBackward()"
+                                title="Back 10 seconds"
+                            >
+                                ↶
+                            </button>
+
+                            <button
+                                class="control-btn play-btn"
+                                id="playButton"
+                                onclick="togglePlay()"
+                                title="Play/Pause"
+                            >
+                                ▶
+                            </button>
+
+                            <button
+                                class="control-btn"
+                                onclick="skipForward()"
+                                title="Forward 10 seconds"
+                            >
+                                ↷
+                            </button>
+
+                            <button
+                                class="control-btn"
+                                onclick="nextMedia()"
+                                title="Next"
+                            >
+                                ⏭
+                            </button>
+
+                        </div>
+
+
+                        <div class="center-controls">
+
+                            <button
+                                class="control-btn"
+                                onclick="toggleMute()"
+                                id="muteButton"
+                                title="Mute"
+                            >
+                                🔊
+                            </button>
+
+                            <input
+                                class="volume"
+                                id="volume"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value="1"
+                            >
+
+                        </div>
+
+
+                        <div class="right-controls">
+
+                            <select
+                                class="speed-select"
+                                id="speed"
+                                onchange="changeSpeed()"
+                            >
+                                <option value="0.5">0.5x</option>
+                                <option value="0.75">0.75x</option>
+                                <option value="1" selected>1x</option>
+                                <option value="1.25">1.25x</option>
+                                <option value="1.5">1.5x</option>
+                                <option value="2">2x</option>
+                            </select>
+
+                            <button
+                                class="control-btn"
+                                onclick="toggleFullscreen()"
+                                title="Fullscreen"
+                            >
+                                ⛶
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PLAYLIST -->
+            <aside class="playlist">
+
+                <div class="playlist-header">
+
+                    <h3>Playlist</h3>
+
+                    <span
+                        class="playlist-count"
+                        id="playlistCount"
+                    >
+                        0 items
+                    </span>
+
+                </div>
+
+
+                <div class="playlist-tools">
+
+                    <button onclick="openFiles()">
+                        ＋ Add
+                    </button>
+
+                    <button onclick="clearPlaylist()">
+                        Clear
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="playlist-items"
+                    id="playlistItems"
+                >
+
+                </div>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- FILE INPUT -->
+<input
+    type="file"
+    id="fileInput"
+    multiple
+    accept="video/*,audio/*"
+    hidden
+>
+
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* ==========================================
+   VLC STYLE MEDIA PLAYER
+========================================== */
+
+const video = document.getElementById("video");
+const fileInput = document.getElementById("fileInput");
+const progress = document.getElementById("progress");
+const volume = document.getElementById("volume");
+const playButton = document.getElementById("playButton");
+const muteButton = document.getElementById("muteButton");
+const currentTimeElement = document.getElementById("currentTime");
+const durationElement = document.getElementById("duration");
+const playlistItems = document.getElementById("playlistItems");
+const playlistCount = document.getElementById("playlistCount");
+const emptyScreen = document.getElementById("emptyScreen");
+const videoContainer = document.getElementById("videoContainer");
+const dropOverlay = document.getElementById("dropOverlay");
+
+let playlist = [];
+let currentIndex = -1;
+
+
+/* ==========================================
+   OPEN FILES
+========================================== */
+
+function openFiles() {
+    fileInput.click();
+}
+
+fileInput.addEventListener("change", function() {
+
+    const files = Array.from(this.files);
+
+    if (files.length > 0) {
+        addFiles(files);
+    }
+
+    this.value = "";
+
+});
+
+
+/* ==========================================
+   ADD FILES
+========================================== */
+
+function addFiles(files) {
+
+    files.forEach(file => {
+
+        if (
+            file.type.startsWith("video/") ||
+            file.type.startsWith("audio/")
+        ) {
+
+            const media = {
+                file: file,
+                name: file.name,
+                type: file.type,
+                url: URL.createObjectURL(file)
+            };
+
+            playlist.push(media);
+
+        }
+
+    });
+
+    updatePlaylist();
+
+    if (currentIndex === -1 && playlist.length > 0) {
+        playMedia(0);
+    }
+
+    showToast(
+        `${files.length} media file${files.length > 1 ? "s" : ""} added`
+    );
+
+}
+
+
+/* ==========================================
+   PLAY MEDIA
+========================================== */
+
+function playMedia(index) {
+
+    if (index < 0 || index >= playlist.length) {
+        return;
+    }
+
+    currentIndex = index;
+
+    const media = playlist[index];
+
+    video.src = media.url;
+
+    video.load();
+
+    video.play()
+        .then(() => {
+            playButton.textContent = "❚❚";
+        })
+        .catch(() => {
+            playButton.textContent = "▶";
+        });
+
+    emptyScreen.style.display = "none";
+
+    updatePlaylist();
+
+}
+
+
+/* ==========================================
+   PLAY / PAUSE
+========================================== */
+
+function togglePlay() {
+
+    if (!video.src) {
+
+        if (playlist.length > 0) {
+            playMedia(0);
+        } else {
+            openFiles();
+        }
+
+        return;
+    }
+
+    if (video.paused) {
+
+        video.play();
+
+    } else {
+
+        video.pause();
+
+    }
+
+}
+
+
+/* ==========================================
+   VIDEO EVENTS
+========================================== */
+
+video.addEventListener("play", function() {
+    playButton.textContent = "❚❚";
+});
+
+video.addEventListener("pause", function() {
+    playButton.textContent = "▶";
+});
+
+video.addEventListener("timeupdate", function() {
+
+    if (!video.duration) return;
+
+    const percent =
+        (video.currentTime / video.duration) * 100;
+
+    progress.value = percent;
+
+    currentTimeElement.textContent =
+        formatTime(video.currentTime);
+
+});
+
+video.addEventListener("loadedmetadata", function() {
+
+    durationElement.textContent =
+        formatTime(video.duration);
+
+});
+
+video.addEventListener("ended", function() {
+
+    nextMedia();
+
+});
+
+
+/* ==========================================
+   PROGRESS
+========================================== */
+
+progress.addEventListener("input", function() {
+
+    if (!video.duration) return;
+
+    video.currentTime =
+        (this.value / 100) * video.duration;
+
+});
+
+
+/* ==========================================
+   VOLUME
+========================================== */
+
+volume.addEventListener("input", function() {
+
+    video.volume = this.value;
+
+    if (video.volume === 0) {
+
+        muteButton.textContent = "🔇";
+
+    } else {
+
+        muteButton.textContent = "🔊";
+
+    }
+
+});
+
+
+/* ==========================================
+   MUTE
+========================================== */
+
+function toggleMute() {
+
+    video.muted = !video.muted;
+
+    muteButton.textContent =
+        video.muted ? "🔇" : "🔊";
+
+}
+
+
+/* ==========================================
+   SKIP
+========================================== */
+
+function skipForward() {
+
+    if (!video.duration) return;
+
+    video.currentTime =
+        Math.min(
+            video.currentTime + 10,
+            video.duration
+        );
+
+}
+
+
+function skipBackward() {
+
+    video.currentTime =
+        Math.max(
+            video.currentTime - 10,
+            0
+        );
+
+}
+
+
+/* ==========================================
+   NEXT / PREVIOUS
+========================================== */
+
+function nextMedia() {
+
+    if (playlist.length === 0) return;
+
+    let nextIndex = currentIndex + 1;
+
+    if (nextIndex >= playlist.length) {
+        nextIndex = 0;
+    }
+
+    playMedia(nextIndex);
+
+}
+
+
+function previousMedia() {
+
+    if (playlist.length === 0) return;
+
+    let previousIndex = currentIndex - 1;
+
+    if (previousIndex < 0) {
+        previousIndex = playlist.length - 1;
+    }
+
+    playMedia(previousIndex);
+
+}
+
+
+/* ==========================================
+   PLAYBACK SPEED
+========================================== */
+
+function changeSpeed() {
+
+    const speed =
+        document.getElementById("speed").value;
+
+    video.playbackRate = Number(speed);
+
+}
+
+
+/* ==========================================
+   FULLSCREEN
+========================================== */
+
+function toggleFullscreen() {
+
+    if (!document.fullscreenElement) {
+
+        videoContainer.requestFullscreen()
+            .catch(() => {});
+
+    } else {
+
+        document.exitFullscreen();
+
+    }
+
+}
+
+
+/* ==========================================
+   CLEAR PLAYLIST
+========================================== */
+
+function clearPlaylist() {
+
+    playlist.forEach(media => {
+        URL.revokeObjectURL(media.url);
+    });
+
+    playlist = [];
+    currentIndex = -1;
+
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+
+    emptyScreen.style.display = "block";
+
+    updatePlaylist();
+
+    showToast("Playlist cleared");
+
+}
+
+
+/* ==========================================
+   REMOVE ITEM
+========================================== */
+
+function removeItem(index, event) {
+
+    event.stopPropagation();
+
+    URL.revokeObjectURL(playlist[index].url);
+
+    playlist.splice(index, 1);
+
+    if (index === currentIndex) {
+
+        video.pause();
+
+        if (playlist.length > 0) {
+
+            if (index >= playlist.length) {
+                currentIndex = playlist.length - 1;
+            }
+
+            playMedia(currentIndex);
+
+        } else {
+
+            currentIndex = -1;
+
+            video.removeAttribute("src");
+            video.load();
+
+            emptyScreen.style.display = "block";
+
+        }
+
+    } else if (index < currentIndex) {
+
+        currentIndex--;
+
+    }
+
+    updatePlaylist();
+
+}
+
+
+/* ==========================================
+   UPDATE PLAYLIST
+========================================== */
+
+function updatePlaylist() {
+
+    playlistItems.innerHTML = "";
+
+    playlist.forEach((media, index) => {
+
+        const item = document.createElement("div");
+
+        item.className =
+            "playlist-item " +
+            (index === currentIndex ? "active" : "");
+
+        const icon =
+            media.type.startsWith("video")
+                ? "🎬"
+                : "🎵";
+
+        item.innerHTML = `
+
+            <div class="item-icon">
+                ${icon}
+            </div>
+
+            <div class="item-info">
+
+                <div class="item-name">
+                    ${escapeHTML(media.name)}
+                </div>
+
+                <div class="item-type">
+                    ${media.type.startsWith("video")
+                        ? "VIDEO"
+                        : "AUDIO"}
+                </div>
+
+            </div>
+
+            <button
+                class="remove-item"
+                title="Remove"
+            >
+                ✕
+            </button>
+
+        `;
+
+        item.addEventListener("click", function() {
+            playMedia(index);
+        });
+
+        item.querySelector(".remove-item")
+            .addEventListener("click", function(event) {
+                removeItem(index, event);
+            });
+
+        playlistItems.appendChild(item);
+
+    });
+
+    playlistCount.textContent =
+        `${playlist.length} item${playlist.length === 1 ? "" : "s"}`;
+
+}
+
+
+/* ==========================================
+   SEARCH
+========================================== */
+
+function searchPlaylist() {
+
+    const search =
+        document.getElementById("searchInput")
+            .value
+            .toLowerCase();
+
+    const items =
+        document.querySelectorAll(".playlist-item");
+
+    items.forEach((item, index) => {
+
+        const name =
+            playlist[index].name.toLowerCase();
+
+        item.style.display =
+            name.includes(search)
+                ? "flex"
+                : "none";
+
+    });
+
+}
+
+
+/* ==========================================
+   TIME FORMAT
+========================================== */
+
+function formatTime(seconds) {
+
+    if (!Number.isFinite(seconds)) {
+        return "00:00";
+    }
+
+    const minutes =
+        Math.floor(seconds / 60);
+
+    const remainingSeconds =
+        Math.floor(seconds % 60);
+
+    return (
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(remainingSeconds).padStart(2, "0")
+    );
+
+}
+
+
+/* ==========================================
+   TOAST
+========================================== */
+
+let toastTimer;
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent = message;
+
+    toast.classList.add("show");
+
+    clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2200);
+
+}
+
+
+/* ==========================================
+   HTML ESCAPE
+========================================== */
+
+function escapeHTML(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+
+}
+
+
+/* ==========================================
+   DRAG & DROP
+========================================== */
+
+videoContainer.addEventListener("dragover", function(event) {
+
+    event.preventDefault();
+
+    dropOverlay.classList.add("show");
+
+});
+
+
+videoContainer.addEventListener("dragleave", function(event) {
+
+    if (!videoContainer.contains(event.relatedTarget)) {
+        dropOverlay.classList.remove("show");
+    }
+
+});
+
+
+videoContainer.addEventListener("drop", function(event) {
+
+    event.preventDefault();
+
+    dropOverlay.classList.remove("show");
+
+    const files =
+        Array.from(event.dataTransfer.files);
+
+    if (files.length > 0) {
+        addFiles(files);
+    }
+
+});
+
+
+/* ==========================================
+   KEYBOARD SHORTCUTS
+========================================== */
+
+document.addEventListener("keydown", function(event) {
+
+    // Don't trigger shortcuts while typing
+    if (
+        event.target.tagName === "INPUT" ||
+        event.target.tagName === "SELECT"
+    ) {
+        return;
+    }
+
+    switch (event.code) {
+
+        case "Space":
+            event.preventDefault();
+            togglePlay();
+            break;
+
+        case "ArrowRight":
+            skipForward();
+            break;
+
+        case "ArrowLeft":
+            skipBackward();
+            break;
+
+        case "ArrowUp":
+            event.preventDefault();
+
+            video.volume =
+                Math.min(video.volume + 0.1, 1);
+
+            volume.value =
+                video.volume;
+
+            break;
+
+        case "ArrowDown":
+            event.preventDefault();
+
+            video.volume =
+                Math.max(video.volume - 0.1, 0);
+
+            volume.value =
+                video.volume;
+
+            break;
+
+        case "KeyM":
+            toggleMute();
+            break;
+
+        case "KeyF":
+            toggleFullscreen();
+            break;
+
+        case "KeyN":
+            nextMedia();
+            break;
+
+        case "KeyP":
+            previousMedia();
+            break;
+
+    }
+
+});
+
+
+/* ==========================================
+   DOUBLE CLICK VIDEO = FULLSCREEN
+========================================== */
+
+video.addEventListener("dblclick", function() {
+    toggleFullscreen();
+});
+
+
+/* ==========================================
+   INITIALIZATION
+========================================== */
+
+video.volume = 1;
+
+updatePlaylist();
+
+</script>
+
+</body>
+</html>
+```
